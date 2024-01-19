@@ -1,0 +1,5 @@
+	MOVE	#1, A		; met le bit initial
+LOOP:
+	MOVE	A, _DIGIT0		; allume un segment
+	RLC	A		; décale le bit à gauche
+	JUMP	LOOP		; recommence à l'infini

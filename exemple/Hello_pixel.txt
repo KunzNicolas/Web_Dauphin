@@ -1,0 +1,55 @@
+;Hello_pixel
+NBLETTERS = 5
+
+TOP:
+	CLR	Y		; en haut
+START:
+	CLR	B		; rang 1ère lettre
+NEXT:
+	CLR	X		; à gauche
+LETTER:
+	PUSH	Y
+	MOVE	B, Y
+	MOVE	TABLE+{X}+{Y}, A	 ; lettre à afficher
+	POP	Y
+
+	CALL	_DrawChar	; affiche une lettre
+
+	INC	X		; à droite
+	COMP	#8, X		; dernière position x ?
+	JUMP,LO	LETTER		; non -> LETTER
+				; oui ->
+	MOVE	#20, A
+	CALL	_WAITSEC		; attend 1 seconde
+
+	INC	B		; 1ère lettre suivante
+	COMP	#7+NBLETTERS, B	; dernière lettre ?
+	JUMP,LS	NEXT		; non -> NEXT
+				; oui ->
+	INC	Y		; plus bas
+	COMP	#5, Y		; bas atteint ?
+	JUMP,LO	START		; non -> START
+	JUMP	TOP		; oui -> TOP
+
+	TABLE	#7+NBLETTERS+8	; 7+8 espace et lettres
+TABLE:
+	BYTE	#H'20		; espace
+	BYTE	#H'20		; espace
+	BYTE	#H'20		; espace
+	BYTE	#H'20		; espace
+	BYTE	#H'20		; espace
+	BYTE	#H'20		; espace
+	BYTE	#H'20		; espace
+	BYTE	#H'48		; H (selon NBLETTERS)
+	BYTE	#H'45		; E
+	BYTE	#H'4C		; L
+	BYTE	#H'4C		; L
+	BYTE	#H'4F		; O
+	BYTE	#H'20		; espace
+	BYTE	#H'20		; espace
+	BYTE	#H'20		; espace
+	BYTE	#H'20		; espace
+	BYTE	#H'20		; espace
+	BYTE	#H'20		; espace
+	BYTE	#H'20		; espace
+	BYTE	#H'20		; espace

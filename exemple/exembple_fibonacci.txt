@@ -1,0 +1,8 @@
+	MOVE	#0, A
+	MOVE	#1, B	; initialisation
+FiboSuivant:
+	MOVE	B, X	; On sauve B (on pourrait aussi écrire PUSH B)
+	ADD	A, B	; On a la valeur suivante de B (et de la suite)
+	MOVE	X, A	; On récupère l'ancienne 2ème valeur (n-1) (POP A)
+	JUMP, CC	FiboSuivant	; On boucle si le carry est à 0
+    HALT            ;sinon on s'arrête. La suite a dépassé 255 (limite 8bits)

@@ -1,0 +1,247 @@
+SCREENCOPY	= H'20F		; adresse de la copie d'écran
+SCREENSIZE	= 16		; taille de l'lcran en octets
+
+	
+	MOVE	#0, A
+	CALL	PUTMOTIF
+
+	CALL	SCREENTOCOPY
+
+	MOVE	#1, X
+	MOVE	#2, Y
+	CALL	NEIGHBOURS
+
+LOOP:
+	MOVE	#0, X
+	MOVE	#0, Y
+
+LOOPX:
+	CALL	TESTPIXEL
+	COMP	#1, A
+	JUMP,EQ	ITSALIVE
+	CALL	NEIGHBOURS
+	COMP	#3, B
+	JUMP,EQ	BIRTH
+	JUMP	ENDLOOPX
+
+ITSALIVE:
+	CALL	NEIGHBOURS
+	COMP	#2, B
+	JUMP,LO	DIE
+	COMP	#3, B
+	JUMP,LS	ENDLOOPX
+
+DIE:
+	CALL	CLRPIXEL
+	JUMP	ENDLOOPX
+
+BIRTH:
+	CALL	SETPIXEL
+
+ENDLOOPX:
+	INC	X
+	COMP	#32, X
+	JUMP,LO	LOOPX
+	CLR	X
+
+	INC	Y
+	COMP	#24, Y
+	JUMP,LO	LOOPX
+
+	CALL	COPYTOSCREEN
+	JUMP	LOOP
+
+; Copie l'écran vers la copie d'écran.
+SCREENTOCOPY:
+	MOVE	#0, X
+	MOVE	#0, Y
+	MOVE	#SCREENSIZE, B
+LOOP2:
+	MOVE	_BITMAP+{X}+{Y}, A
+	MOVE	A, SCREENCOPY+{X}+{Y}
+	INC	X
+	DEC	B
+	JUMP,NE	LOOP2
+	RET
+
+; Copie la copie d'écran vers l'écran.
+COPYTOSCREEN:
+	MOVE	#0, X
+	MOVE	#0, Y
+	MOVE	#SCREENSIZE, B
+LOOP1:
+	MOVE	SCREENCOPY+{X}+{Y}, A
+	MOVE	A, _BITMAP+{X}+{Y}
+	INC	X
+	DEC	B
+	JUMP,NE	LOOP1
+	RET
+
+; Compte le nombre de voisins d'un pixel à un.
+; in 	X;Y	coordonnées du pixel
+; out	B	nombre de voisins
+NEIGHBOURS:
+	PUSH	X
+	PUSH	Y
+
+	MOVE	#0, B
+
+	DEC	X
+	DEC	Y
+
+	CALL	TESTPIXEL
+	ADD	A, B
+	INC	X
+	CALL	TESTPIXEL
+	ADD	A, B
+	INC	X
+	CALL	TESTPIXEL
+	ADD	A, B
+
+	SUB	#2, X
+	INC	Y
+
+	CALL	TESTPIXEL
+	ADD	A, B
+	ADD	#2, X
+	CALL	TESTPIXEL
+	ADD	A, B
+
+	SUB	#2, X
+	INC	Y
+
+	CALL	TESTPIXEL
+	ADD	A, B
+	INC	X
+	CALL	TESTPIXEL
+	ADD	A, B
+	INC	X
+	CALL	TESTPIXEL
+	ADD	A, B
+
+	POP	y
+	POP	X
+	RET
+
+; Teste un pixel dans l'écran.
+; in	X,Y	coordonnées
+; out	A	1 => pixel allumé
+;		0 => pixel éteint
+TESTPIXEL:
+	PUSH	B
+	PUSH	X
+	PUSH	Y
+
+	MOVE	#0, A
+
+	CALL	WRAPXY
+
+	AND	#H'1F, Y
+	RL	Y
+	RL	Y
+	MOVE	X, B
+	XOR	#H'07, B
+	RR	X
+	RR	X
+	RR	X
+	AND	#H'3, X
+
+	TEST	_BITMAP+{X}+{Y} :B
+	JUMP,EQ	TESTPIXEL1
+	INC	A
+
+TESTPIXEL1:
+	POP	Y
+	POP	X
+	POP	B
+	RET
+
+; Efface un pixel dans la copie d'écran.
+; in	X,Y	coordonnées
+; out	A	1 => pixel allumé
+;		0 => pixel éteint
+CLRPIXEL:
+	PUSH	B
+	PUSH	X
+	PUSH	Y
+	AND	#H'1F, Y
+	RL	Y
+	RL	Y
+	MOVE	X, B
+	XOR	#H'07, B
+	RR	X
+	RR	X
+	RR	X
+	AND	#H'3, X
+	MOVE	#0, A
+	TCLR	SCREENCOPY+{X}+{Y} :B
+	POP	Y
+	POP	X
+	POP	B
+	RET
+
+; Allume un pixel dans la copie d'écran. 
+; in	X,Y	coordonnées
+; out	A	1 => pixel allumé
+;		0 => pixel éteint
+SETPIXEL:
+	PUSH	B
+	PUSH	X
+	PUSH	Y
+	AND	#H'1F, Y
+	RL	Y
+	RL	Y
+	MOVE	X, B
+	XOR	#H'07, B
+	RR	X
+	RR	X
+	RR	X
+	AND	#H'3, X
+	MOVE	#0, A
+	TSET	SCREENCOPY+{X}+{Y} :B
+
+	POP	Y
+	POP	X
+	POP	B
+	RET
+
+; Wrap des coordonnées.
+; in	X,Y	coordonnées
+; out	X,Y	coordonnées wrappées
+WRAPXY:
+	COMP	#31, X
+	JUMP,LS	XOK
+
+	COMP	#128, X
+	JUMP,LS	XOK1
+	MOVE	#31, X
+	JUMP	XOK
+
+XOK1:
+	MOVE	#0, X
+	JUMP	XOK
+
+XOK:
+	COMP	#23, Y
+	JUMP,LS	YOK
+
+	COMP	#128, Y
+	JUMP,LS	YOK1
+	MOVE	#23, Y
+	JUMP	YOK
+
+YOK1:
+	MOVE	#0, Y
+YOK:
+	RET
+
+; Met un motif sympa dans l'écran.
+PUTMOTIF:
+	CALL	_CLEARSCREEN
+
+	MOVE	#H'40, _BITMAP+1
+	MOVE	#H'10, _BITMAP+5
+	MOVE	#H'CE, _BITMAP+9
+
+	CALL	SCREENTOCOPY
+	RET

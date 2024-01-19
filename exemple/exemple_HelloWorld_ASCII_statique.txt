@@ -1,0 +1,26 @@
+START: 
+	MOVE	#0, X		; rang de la lettre
+DISPLAY:
+	MOVE	#0, Y		; rang de l'afficheur
+LOOP:
+	MOVE	TABLE+{X}, A	; cherche la lettre
+	MOVE	A, _ASCII+{X}	; affiche la lettre
+	INC	X		; lettre suivante
+	COMP	#12, X		; dernière lettre
+	JUMP,LS	LOOP		; non -> LOOP
+	HALT
+
+	TABLE	#12		; table de 12 octets
+TABLE:
+	BYTE	#"H"	; espace
+	BYTE	#"e"	; espace
+	BYTE	#"l"	; espace
+	BYTE	#"l"	; lettre H
+	BYTE	#"o"	; lettre E
+	BYTE	#H'20	; lettre L
+	BYTE	#"W"	; lettre L
+	BYTE	#"o"	; lettre O
+	BYTE	#"r"	; espace
+	BYTE	#"l"	; espace
+	BYTE	#"d"	; espace
+	BYTE	#H'21	; espace

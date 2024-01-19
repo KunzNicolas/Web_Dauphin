@@ -1,0 +1,17 @@
+	CLR	X		; X à gauche
+	CLR	Y		; Y en haut
+	MOVE	#1, B		; de gauche à droite
+LOOP:
+	COMP	#_BITMAPWIDTH-1, X ; touche le bord droite ?
+	JUMP,LO	RIGHT		; non -> RIGHT
+	MOVE	#-1, B		; de droite à gauche
+RIGHT:
+	COMP	#0, X		; touche le bord gauche ?
+	JUMP,HI	LEFT		; non -> LEFT
+	MOVE	#1, B		; de gauche à droite
+LEFT:
+	ADD	B, X		; avance ou recule X
+	CALL	_NotPixel		; allume le nouveau point
+
+	CALL	_NotPixel		; éteint l'ancien point
+	JUMP	LOOP

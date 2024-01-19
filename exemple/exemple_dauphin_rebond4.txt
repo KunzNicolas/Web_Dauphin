@@ -1,0 +1,64 @@
+	CLR	X		; X à gauche
+	MOVE	#_BITMAPHEIGHT/2-1, Y ; Y au milieu
+	MOVE	#1, A		; de gauche à droite
+	MOVE	#1, B		; de haut en bas
+LOOP:
+	COMP	#_BITMAPWIDTH-3, X ; touche le bord droite ?
+	JUMP,LO	RIGHT		; non -> RIGHT
+	MOVE	#-1, A		; de droite à gauche
+RIGHT:
+	COMP	#1, X		; touche le bord gauche ?
+	JUMP,HI	LEFT		; non -> LEFT
+	MOVE	#1, A		; de gauche à droite
+LEFT:
+	COMP	#_BITMAPHEIGHT-3, Y ; touche le bord inf ?
+	JUMP,LO	BOTTOM		; non -> BOTTOM
+	MOVE	#-1, B		; de bas en haut
+BOTTOM:
+	COMP	#1, Y		; touche le bord sup ?
+	JUMP,HI	TOP		; non -> TOP
+	MOVE	#1, B		; de haut en bas
+TOP:
+	ADD	A, X		; avance ou recule X
+	ADD	B, Y		; descend ou monte Y
+
+	CALL	NOTBALL		; allume nouvelle balle
+
+	PUSH	A
+	POP	A
+
+	CALL	NOTBALL		; éteint l'ancienne balle
+	JUMP	LOOP
+
+; Inverse la balle.
+; in	X position horizontale
+;	Y position verticale
+; out	-
+; mod	F
+NOTBALL:
+	PUSH	X
+	PUSH	Y
+
+	DEC	Y
+	CALL	_NotPixel
+	INC	X
+	CALL	_NotPixel
+	INC	X
+	INC	Y
+	CALL	_NotPixel
+	INC	Y
+	CALL	_NotPixel
+	DEC	X
+	INC	Y
+	CALL	_NotPixel
+	DEC	X
+	CALL	_NotPixel
+	DEC	X
+	DEC	Y
+	CALL	_NotPixel
+	DEC	Y
+	CALL	_NotPixel
+
+	POP	Y
+	POP	X
+	RET
