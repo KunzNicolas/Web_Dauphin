@@ -3055,6 +3055,9 @@ var app = angular.module('ASMSimulator', []);
                       {output: "DIGIT", desc: "Digit"},
                       {output: "IMG", desc: "Pixel"}]
 
+    //
+    $scope.pileStop = $scope.constants._KEYBOARD.value-1;
+
 
     $scope.output = "ASCII";
     $scope.outputStartIndex = $scope.constants._ASCII.value;
@@ -3072,6 +3075,18 @@ var app = angular.module('ASMSimulator', []);
             $scope.outputStopIndex =  $scope.constants._BITMAPLENGTH.value; 
         };
     };
+
+    if ($scope.constants.MEMOMRYSIZE.value==256){
+        $scope.adressSize = 8;
+    } else if ($scope.constants.MEMOMRYSIZE.value==512){
+        $scope.adressSize = 9;
+    } else if ($scope.constants.MEMOMRYSIZE.value==1024){
+        $scope.adressSize = 10;
+    } else if ($scope.constants.MEMOMRYSIZE.value==2048){
+        $scope.adressSize = 11;
+    } else if ($scope.constants.MEMOMRYSIZE.value==4096){
+        $scope.adressSize = 12;
+    }
 
     // ng-model "code" est un l'intérieur d'un ng-switch donc obligé de passer par un abojet pour l'heritage
     $scope.code = {text: "START: \n	MOVE	#0, X		; rang de la lettre\nDISPLAY:\n	MOVE	#0, Y		; rang de l'afficheur\nLOOP:\n	MOVE	TABLE+{X}+{Y}, A	; cherche la lettre\n	MOVE	A, _ASCII+{Y}	; affiche la lettre\n	INC	Y		; afficheur suivant\n	COMP	#4, Y		; 4ème afficheur ?\n	JUMP,LO	LOOP		; non -> LOOP\n				; oui ->\n	MOVE	#3, A		; durée à attendre\n	\n	INC	X		; lettre suivante\n	COMP	#12-4, X		; dernière lettre ?\n	JUMP,LS	DISPLAY		; non -> DISPLAY\n	JUMP	START		; oui -> START\n\n	TABLE	#12		; table de 12 octets\nTABLE:\n	BYTE	#\"_\"	; espace\n	BYTE	#\"_\"	; espace\n	BYTE	#\"_\"	; espace\n	BYTE	#\"H\"	; lettre H\n	BYTE	#\"E\"	; lettre E\n	BYTE	#\"L\"	; lettre L\n	BYTE	#\"L\"	; lettre L\n	BYTE	#\"O\"	; lettre O\n	BYTE	#\"_\"	; espace\n	BYTE	#\"_\"	; espace\n	BYTE	#\"_\"	; espace\n	BYTE	#\"_\"	; espace\n"};
@@ -3172,9 +3187,11 @@ var app = angular.module('ASMSimulator', []);
     };
     $scope.getBinArray = function (value, binlength = 8) {
         var bin = value.toString(2);
+        // console.log(bin)
         if (bin.length <binlength){
             bin = "0".repeat(binlength-bin.length) + bin
         }
+        // console.log(bin)
         // return "010" + bin
         return bin.split("")
     };

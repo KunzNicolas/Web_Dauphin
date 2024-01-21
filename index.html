@@ -60,38 +60,49 @@
                             <table class="table table-condensed table-striped" style="width:100%">
                                 <thead>
                                     <tr>
-                                        <th style="width:5em; text-align:center">Adresse:</th>
-                                        <th style="width:25rem;"> </th>
-                                        <!-- <th></th> -->
+                                        <th style="width:10rem; text-align:center">Adresse:</th>
+                                        <td style="width:6rem; text-align:center;border:1px solid #ccc;" id="busAddress" ng-model="bus" >{{bus.address | number:displayHex}}</td>
+                                        <td style="min-width:25rem; display:inline-block; width:100%;border:1px solid #ccc;">
+                                            <div id="busAddressBit" style="display:grid; grid-template-columns: repeat({{adressSize}}, minmax(auto,2rem)); float:right;">
+                                                <div  ng-repeat="a in getBinArray(bus.address, adressSize) track by $index" >
+                                                    <button ng-disabled="isRunning" ng-click="bus.change('address',$index+12-adressSize,a)" ng-class="getBusInnerCellCss(a)">{{ a }}</button>
+                                                </div>
+                                            </div>
+                                        </td>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <!-- <tbody>
                                     <tr style="text-align:center;" class="source-code">
                                         <td id="busAddress" ng-model="bus" >{{bus.address | number:displayHex}}</td>
                                         <td style="min-width:25rem;" style="display:inline-block; width:100%">
-                                            <div style="display:grid; grid-template-columns: repeat(12, minmax(auto,2rem)); float:right;">
+                                            <div id="busAddressBit" style="display:grid; grid-template-columns: repeat(12, minmax(auto,2rem)); float:right;">
                                                 <div ng-repeat="a in getBinArray(bus.address, 12) track by $index" >
                                                     <button ng-disabled="isRunning" ng-click="bus.change('address',$index,a)" ng-class="getBusInnerCellCss(a)">{{ a }}</button>
                                                 </div>
                                             </div>
                                         </td>
-                                        <!-- <td>
-                                            <button class="btn btn-default" type="button" ng-click="bus.read()" ng-disabled="isRunning"> Read </button>
-                                        </td> -->
                                     </tr>
-                                </tbody>
+                                </tbody> -->
                             </table>
                             <!-- </div> -->
                             <!-- <div class="source-code bus"> -->
                                 <table class="table table-condensed table-striped" style="width:100%; margin-bottom: 0px;">
                                     <thead>
                                         <tr>
-                                            <th style="width:5em; text-align:center">Donnée:</th>
-                                            <th style="width:25rem;"> </th>
+                                            <th style="width:10rem; text-align:center">Donnée:</th>
+                                            <td style="width:6rem; text-align:center; border:1px solid #ccc;" id="busData" ng-model="bus" >{{bus.data | number:displayHex}}</td>
+                                            <td style="min-width:25rem; text-align: right;border:1px solid #ccc;display:inline-block; width:100%;">
+                                                <div style="display:grid; grid-template-columns: repeat(8, minmax(auto,2rem)); align-content: end;float:right;">
+                                                    <div ng-repeat="a in getBinArray(bus.data, 8) track by $index">
+                                                        <button ng-disabled="isRunning" ng-click="bus.change('data',$index,a)" ng-class="getBusInnerCellCss(a)">{{ a }} </button>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <!-- <th style="width:25rem;"> </th> -->
                                             <!-- <th></th> -->
                                         </tr>
                                     </thead>
-                                    <tbody>
+                                    <!-- <tbody>
                                         <tr style="text-align:center;" class="source-code">
                                             <td id="busData" ng-model="bus" >{{bus.data | number:displayHex}}</td>
                                             <td style="min-width:25rem; text-align: right;"  style="display:inline-block; width:100%">
@@ -101,38 +112,10 @@
                                                     </div>
                                                 </div>
                                             </td>
-                                            <!-- <td>
-                                                <button class="btn btn-default" type="button" ng-click="bus.write()" ng-disabled="isRunning"> Write </button>
-                                            </td> -->
                                         </tr>
-                                    </tbody>
+                                    </tbody> -->
                                 </table>
-                            <!-- </div> -->
-                                                        
-                            <!-- <p><b>Adresse:</b></p>  
-                            <span id="busAddress" ng-model="bus" style="float:left">{{bus.address | number:displayHex}} </span>
-                            <div style="display:grid; grid-template-columns: auto repeat(12, minmax(auto,2rem)) 2rem;">
-                                <div></div>
-                                <div ng-repeat="a in getBinArray(bus.address, 12) track by $index" >
-                                    <button ng-disabled="isRunning" ng-click="bus.change('address',$index,a)" ng-class="getBusInnerCellCss(a)">{{ a }}</button>
-                                </div>
-                                <div></div>
-                            </div>
-                            <button class="btn btn-default" type="button" ng-click="bus.read()" ng-disabled="isRunning"> Read </button> -->
-                       
-                   
-                        <!-- <div class="source-code bus">
-                            <p><b>Donnée:</b></p> 
-                            <span id="busData" ng-model="bus" style="float:left">{{bus.data | number:displayHex}}</span>
-                            <div style="display:grid; grid-template-columns: auto repeat(8, minmax(auto,2rem)) 2rem;">
-                                <div></div>
-                                <div ng-repeat="a in getBinArray(bus.data, 8) track by $index">
-                                    <button ng-disabled="isRunning" ng-click="bus.change('data',$index,a)" ng-class="getBusInnerCellCss(a)">{{ a }} </button>
-                                </div>
-                                <div></div>
-                            </div>
-                            <button class="btn btn-default" type="button" ng-click="bus.write()" ng-disabled="isRunning"> Write </button>
-                        </div> -->
+                            
                     </div>
                 </div>
                 
@@ -221,7 +204,7 @@
                                     </thead>
                                     <tbody>
                                         <tr style="text-align:center;" class="source-code">
-                                            <td style="text-align:right">Valeur: </td>
+                                            <th style="text-align:right">Valeur: </th>
                                             <td><div style="margin:auto;" ng-class="displayA && 'marker marker-a'"><small>{{ cpu.gpr[0] | number:displayHex }}</small></div></td>
                                             <td><div style="margin:auto;" ng-class="displayB && 'marker marker-b'"><small>{{ cpu.gpr[1] | number:displayHex }}</small></div></td>
                                             <td><div style="margin:auto;" ng-class="displayC && 'marker marker-x'"><small>{{ cpu.gpr[2] | number:displayHex }}</small></div></td>
@@ -231,7 +214,7 @@
                                         </tr>
                                        </tbody>
                                 </table>
-                                <table class="table table-condensed table-striped" style="width:100%; margin-bottom: 3px;">
+                                <table class="table table-condensed table-striped" style="width:100%;">
                                     <thead>
                                         <tr>
                                             <th style="width:5em; text-align:center">Fanions</th>
@@ -243,7 +226,7 @@
                                     </thead>
                                     <tbody>
                                         <tr style="text-align:center;" class="source-code">
-                                            <td style="text-align:right">Valeur: </td>
+                                            <th style="text-align:right">Valeur: </th>
                                             <td><small>{{ cpu.negative | flag }}</small></td>
                                             <td><small>{{ cpu.zero | flag }}</small></td>
                                             <td><small>{{ cpu.carry | flag }}</small></td>
@@ -251,12 +234,29 @@
                                         </tr>
                                        </tbody>
                                 </table>
+                                <table class="table table-condensed table-striped" style="width:100%; margin-bottom: 3px;">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:5em; text-align:center">Pile</th>
+                                            <td style="border:1px solid #ccc; display:inline-block; width:100%; min-height:2.4em; text-align:right">
+                                                <div class="memory-block" 
+                                                ng-repeat="m in memory.data | startFrom: cpu.sp+1 | stopTo: pileStop-cpu.sp track by $index" 
+                                                ng-class="getMemoryCellCss($index+cpu.sp+1)">
+                                                    <!-- {{$index}} {{pileStop}} -->
+                                                    <div ng-class="getMemoryInnerCellCss($index+cpu.sp+1)" title="@{{$index+ cpu.sp+1 | number:displayHex}}">
+                                                        <small>{{ m | number:displayHex }}</small>
+                                                    </div>
+                                            </td>
+                                        </tr>
+                                    </thead>
+                                </table>
                             </div>
                         </div>
                         <div class="panel panel-default">    <!-- Memory -->
                             <div class="panel-heading" style="display:inline-block; width:100%">
                                 <h4 class="panel-title">Mémoire (RAM)
                                     <small>
+                                        
                                         <div class="btn-group" style="float:right">
                                             <button type="button" id="btn-view-hex"   class='btn btn-default' ng-model="displayHex" ng-click="displayHex = true; getViewCss()" >hex</button>
                                             <button type="button" id="btn-view-dec" class='btn btn-default btn-view-on' ng-model="displayHex" ng-click="displayHex = false; getViewCss()">dec</button>
@@ -294,21 +294,6 @@
                                         <span style="margin-left:5px;">Instructions:</span>
                                         <a ng-click="displayInstr = true" ng-hide="displayInstr">Show</a>
                                         <a ng-click="displayInstr = false" ng-show="displayInstr">Hide</a>
-                                        <!-- <br> -->
-                                        <!-- Adresses de registres: 
-                                        <span style="margin-left:5px;">A:</span>
-                                        <a ng-click="displayA = true" ng-hide="displayA">Show</a>
-                                        <a ng-click="displayA = false" ng-show="displayA">Hide</a>
-                                        <span style="margin-left:5px;">B:</span>
-                                        <a ng-click="displayB = true" ng-hide="displayB">Show</a>
-                                        <a ng-click="displayB = false" ng-show="displayB">Hide</a>
-                                        <span style="margin-left:5px;">X:</span>
-                                        <a ng-click="displayC = true" ng-hide="displayC">Show</a>
-                                        <a ng-click="displayC = false" ng-show="displayC">Hide</a>
-                                        <span style="margin-left:5px;">Y:</span>
-                                        <a ng-click="displayD = true" ng-hide="displayD">Show</a>
-                                        <a ng-click="displayD = false" ng-show="displayD">Hide</a>
-                                        <br> -->
                                         <span style="margin-left:5px;">Adresses mémoire:</span>
                                         
                                         <a ng-click="displayAdd = true" ng-hide="displayAdd">Show</a>

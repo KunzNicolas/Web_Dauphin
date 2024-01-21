@@ -1,0 +1,309 @@
+:root {
+    --navbar-height: 50px;
+}
+.col-lg-5, .col-lg-7, .col-lg-6, .col-lg-8, .col-lg-4, .col-md-6{
+    padding-left: 10px;
+    padding-right: 10px;
+}
+/* .col-lg-5{
+    width:45%;
+}
+.col-lg-7{
+    width:55%;
+} */
+@media (min-width:950px) {
+    .container {
+        width:920px;
+    }
+    }
+@media (min-width:1530px) {
+    .container {
+      width:1500px;
+    }
+  }
+
+.navbar {
+    position: fixed;
+    z-index: 50;
+    width: 100%;
+    top: 0px;
+    overflow: hidden;
+    /* height:calc(var(--navbar-height)); */
+    background-color:#428BCA;
+    border:0px;
+    border-radius:0px;
+
+}
+.simulator { 
+    /* height: auto !important; */
+    /* position: relative; */
+    /* padding: 0 4vw; */
+    margin-top: 60px; /*calc(var(--navbar-height*2+10px));;*/
+    margin-right:auto;
+    margin-left:auto;
+    /* width:100%; */
+} 
+.source-code {
+    /* font-family: source-code-pro, Courier New; */
+    font-family: Consolas, monospace;
+    /* color: #070707; */
+    ;
+}
+
+.row-highlight {
+    background-color: #428BCA;
+}
+
+.codelabels {
+    overflow-y: auto;
+    height: 40em;
+}
+.codelabels thead th {
+    position: sticky; /* make the table heads sticky */
+    top: 0px; /* table head will be placed from the top of the table and sticks to it */
+  }
+  table {
+    border-collapse: collapse; /* make the table borders collapse to each other */
+    width: 100%;
+  }
+  th,
+  td {
+    padding: 8px 16px;
+    border: 1px solid #ccc;
+  }
+  th {
+    background: #eee;
+  }
+.output, .output-bg {
+    background-color: #DFDFDF;
+}
+
+.output {
+    min-width: 1em; /* il faut specifier un largeur min sinon le "brique" ne s'affiche pas quand la mémoire est vide*/
+    margin-right: 1px;
+    margin-bottom: 1px;
+    text-align: center;
+}
+
+.bus{
+    display: grid;
+    grid-template-columns: minmax(7rem, 12%) minmax(3rem, 5%) minmax(60%, auto) minmax(6rem, 10%);
+    /* padding-top: 1.2em;
+    padding-bottom: 1.6em; */
+}
+
+/* .btn{
+    background-color: #ececec;
+} */
+
+.navbar-btn{
+    min-width: 9rem;
+}
+
+.btn-bus{
+    background-color: #DFDFDF;
+    border-width: 1px;
+    width:100%;
+}
+.btn-bus-off{
+    background-color: #DFDFDF;
+}
+.btn-bus-on{
+    background-color: #ffffff;
+}
+
+.btn-input{
+    background-color: #DFDFDF;
+    font-size:20pt; 
+    font-weight: bold;
+}
+
+.btn-input-off, .btn-view-off, .btn-code-off, .btn-output-off, .btn-off{
+    background-color: #DFDFDF;
+}
+/* .btn-input-on{
+    background-color: #c9fad4;
+} */
+
+.btn-output-on, .btn-code-on, .btn-view-on, .btn-input-on, .btn-on{
+    background-color: #bcdec4;
+}
+
+.instr-bg {
+    background-color: #E6F3FF;
+}
+
+.instr-bg a {
+    color: inherit;
+    cursor: pointer;
+}
+
+.stack-bg {
+    background-color: #F8DCB4;
+}
+
+.memory-block {
+    width: 1.8em;
+    display: inline-block;
+    text-align: center;
+    border-style:solid;
+    border-width: 1px;
+    border-color: #E6F3FF;
+}
+
+.marker {
+    width: 1.8em;
+    color: #FFF;
+    border-radius: 2px;
+}
+
+.marker-pc {
+    background-color: #428BCA;
+}
+
+.marker-sp {
+    background-color: #EEA236;
+}
+
+.marker-a {
+    background-color: #4D8C20;
+}
+
+.marker-b {
+	background-color: #22D19D;
+}
+
+.marker-x {
+	background-color: #A137ED;
+}
+
+.marker-y {
+	background-color: #E81F1F;
+}
+
+.codelabel-line a {
+    cursor: pointer;
+}
+
+
+/* NK output pixel */
+.outputImg_grid{
+    display: grid;
+    grid-template-columns: 12rem 12rem 12rem 12rem; /*aussi aujster outputImg2 width height*/
+    grid-gap:0px;
+    /* height:0;
+    width:50%; padding-bottom:50%; */
+}
+.outputImg {
+    display:flex;
+    width: 100%; 
+    height: 100%;
+    margin:0px;
+    padding:0px;
+    border:0px;
+}
+.outputImg2 {
+    width: 1.5rem; /*aussi aujster outputImg_grid grid-template-columns*/
+    height: 1.5rem;
+}
+.outputImg-off {
+    background-color: #013019;
+    /* width: 1.5rem; */
+    /* height: 1.5rem; */
+    /* color:#E81F1F; */
+}
+
+.outputImg-on {
+    background-color: #05c960;
+    /* color:#EEA236 */
+}
+
+
+
+
+/* NK 12/07 segmented display */
+
+
+
+.output-Digit{
+    width: 50px;
+    height: 65px;
+    /* display: grid;
+    grid-template-columns: 150px 150px 150px;
+    justify-items: stretch;
+    justify-content: stretch; */
+}
+
+.display {
+    position: relative;
+    /* width: 33%;
+    height: 300px; */
+}
+
+.segment {
+    height: 25px;
+    width: 5px;
+    /* background-color: #990000; */
+    border-radius: 9999px;
+    /* box-shadow: 0px 0px 25px #990000; */
+}
+
+.outputDigit-off {
+    background-color: #290000;
+    box-shadow: 0px 0px 7px #290000;
+    /* color:#E81F1F; */
+}
+
+.outputDigit-on {
+    background-color: #990000;
+    box-shadow: 0px 0px 7px #990000;
+    /* color:#EEA236 */
+}
+
+
+.A {
+    position: absolute;
+    top: -7px;
+    left: 20.0px;
+    transform: rotate(90deg);
+}
+.B {
+    position: absolute;
+    top: 6.0px;
+    left: 34.0px;
+}
+.C {
+    position: absolute;
+    top: 32.0px;
+    left: 34.0px;
+}
+.D {
+    position: absolute;
+    top: 45px;
+    left: 20.0px;
+    transform: rotate(90deg);
+}
+.E {
+    position: absolute;
+    top: 32.0px;
+    left: 6.0px;
+}
+.F {
+    position: absolute;
+    top: 6.0px;
+    left: 6.0px;
+}
+.G {
+    position: absolute;
+    top: 19px;
+    left: 20px;
+    transform: rotate(90deg);
+}
+.H {
+    position: absolute;
+    height: 5px;
+    width: 5px;
+    top: 55px;
+    left: 42px;
+    /* transform: rotate(90deg); */
+}
