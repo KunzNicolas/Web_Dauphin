@@ -1,4 +1,5 @@
 var app = angular.module('ASMSimulator', []);
+
 ;app.service('assembler', ['opcodes', 'constants', function (opcodes, constants) {
     return {
         go: function (input) {
@@ -2467,11 +2468,12 @@ var app = angular.module('ASMSimulator', []);
         },
         reset: function () {
             var self = this;
-
+            self.data=Array(constants.MEMOMRYSIZE.value),
             self.lastAccess = -1;
             for (var i = 0, l = self.data.length; i < l; i++) {
                 self.data[i] = 0;
             }
+            
         }
     };
 
@@ -2979,15 +2981,15 @@ var app = angular.module('ASMSimulator', []);
     return opcodes;
 }]);
 // NK 
-;app.service('constants', [function() {
+;app.service('constants', [function(archi=8) {
     // nk constantes
     // type: js-internal to script (no _ in the name) / number: 8bits / address: 12 bits
-    var memory_size = 512;
+    var memory_size = 2**archi;
     var bitmap_length = 128;
     var bitmap_line = parseInt(bitmap_length/4);
     var digit_length = 4;
     var ascii_length = 24;
-    var constants ={ 'MEMOMRYSIZE': {'value':memory_size,'type':'js'},
+    var constants ={'MEMOMRYSIZE': {'value':memory_size,'type':'js'},
                     '_DIGIT0': {'value': memory_size -bitmap_length - digit_length, 'type':'address'},
                     '_DIGIT1': {'value': memory_size -bitmap_length - digit_length+1, 'type':'address'},
                     '_DIGIT2': {'value': memory_size -bitmap_length - digit_length+2, 'type':'address'},
@@ -3020,15 +3022,28 @@ var app = angular.module('ASMSimulator', []);
                     '_TESTPIXEL':{'value': 28, 'type':'routine'},
                     '_DRAWCHAR':{'value': 40, 'type':'routine'},
                     '_DRAWHEXADIGIT':{'value': 42, 'type':'routine'},
-                    '_DRAWHEXABYTE':{'value': 44, 'type':'routine'}
+                    '_DRAWHEXABYTE':{'value': 44, 'type':'routine'},
+                set:function(archi){ 
+                    var self = this;
+                    var memory_size = 2**archi;
+                    self.MEMOMRYSIZE.value = memory_size;
+                    self._DIGIT0.value = memory_size -bitmap_length - digit_length;
+                    self._DIGIT1.value = memory_size -bitmap_length - digit_length+1;
+                    self._DIGIT2.value = memory_size -bitmap_length - digit_length+2;
+                    self._DIGIT3.value = memory_size -bitmap_length - digit_length+3;
+                    self._BITMAP.value =memory_size -bitmap_length ;
+                    self._ASCII.value = memory_size -bitmap_length -digit_length -ascii_length;
+                    self._ASCIILENGTH.value = ascii_length;
+                    self._KEYBOARD.value =memory_size -bitmap_length -digit_length -ascii_length -1;
+                }
                 };
-
+    constants.set(archi)
     return constants;
 }]);
 
-;app.controller('Ctrl', ['$document', '$scope', '$timeout', 'cpu', 'memory', 'assembler', 'bus', 'constants', 'routines', function ($document, $scope, $timeout, cpu, memory, assembler, bus, constants, routines) {
+;app.controller('Ctrl', ['$document', '$scope', '$timeout', 'cpu', 'memory', 'assembler', 'bus', 'constants', function ($document, $scope, $timeout, cpu, memory, assembler, bus, constants) {
     var debug = false;
-    $scope.constants = constants;
+    
     $scope.memory = memory;
     $scope.cpu = cpu;
     $scope.bus = bus;
@@ -3049,45 +3064,74 @@ var app = angular.module('ASMSimulator', []);
                     //  {speed: 8192, desc: "8192 HZ"},
                      {speed: 1048576, desc: "1 MHZ"}];
     $scope.speed = 16;
+    $scope.archis = [{archi: 8, desc: "8 bits"},
+                    {archi: 9, desc: "9 bits"},
+                    {archi: 12, desc: "12 bits"}];
+    $scope.archi = 8;
+    constants.set($scope.archi);
+    $scope.constants = constants;
+    memory.reset();
 
     //nk 29/06
-    $scope.outputs = [{output: "ASCII", desc: "ASCII"},
-                      {output: "DIGIT", desc: "Digit"},
-                      {output: "IMG", desc: "Pixel"}]
+    // $scope.outputs = [{output: "ASCII", desc: "ASCII"},
+    //                   {output: "DIGIT", desc: "Digit"},
+    //                   {output: "IMG", desc: "Pixel"}]
 
     //
-    $scope.pileStop = $scope.constants._KEYBOARD.value-1;
+    // $scope.pileStop = $scope.constants._KEYBOARD.value-1;
 
 
-    $scope.output = "ASCII";
-    $scope.outputStartIndex = $scope.constants._ASCII.value;
-    $scope.outputStopIndex = $scope.constants._ASCIILENGTH.value;; 
+    // $scope.output = "ASCII";
+    // $scope.outputStartIndex = $scope.constants._ASCII.value;
+    // $scope.outputStopIndex = $scope.constants._ASCIILENGTH.value;; 
     
-    $scope.outputChange = function (){
-        if ($scope.output=== "ASCII"){
-            $scope.outputStartIndex = $scope.constants._ASCII.value;
-            $scope.outputStopIndex = $scope.constants._ASCIILENGTH.value; 
-        } else if ($scope.output=== "DIGIT"){
-            $scope.outputStartIndex = $scope.constants._DIGIT0.value;
-            $scope.outputStopIndex = $scope.constants._DIGITLENGTH.value; 
-        } else if ($scope.output=== "IMG"){
-            $scope.outputStartIndex =  $scope.constants._BITMAP.value;
-            $scope.outputStopIndex =  $scope.constants._BITMAPLENGTH.value; 
-        };
-    };
-
-    if ($scope.constants.MEMOMRYSIZE.value==256){
-        $scope.adressSize = 8;
-    } else if ($scope.constants.MEMOMRYSIZE.value==512){
-        $scope.adressSize = 9;
-    } else if ($scope.constants.MEMOMRYSIZE.value==1024){
-        $scope.adressSize = 10;
-    } else if ($scope.constants.MEMOMRYSIZE.value==2048){
-        $scope.adressSize = 11;
-    } else if ($scope.constants.MEMOMRYSIZE.value==4096){
-        $scope.adressSize = 12;
+    // $scope.outputChange = function (){
+    //     if ($scope.output=== "ASCII"){
+    //         $scope.outputStartIndex = $scope.constants._ASCII.value;
+    //         $scope.outputStopIndex = $scope.constants._ASCIILENGTH.value; 
+    //     } else if ($scope.output=== "DIGIT"){
+    //         $scope.outputStartIndex = $scope.constants._DIGIT0.value;
+    //         $scope.outputStopIndex = $scope.constants._DIGITLENGTH.value; 
+    //     } else if ($scope.output=== "IMG"){
+    //         $scope.outputStartIndex =  $scope.constants._BITMAP.value;
+    //         $scope.outputStopIndex =  $scope.constants._BITMAPLENGTH.value; 
+    //     };
+    // };
+    $scope.output=[true, true, true]
+    $scope.outputChange = function (output=undefined){
+        if (output != undefined){
+            if (output=="ASCII"){
+                $scope.output[0] = !$scope.output[0];
+            } else if (output=="DIGIT"){
+                $scope.output[1] = !$scope.output[1];
+            } else if (output=="IMG"){
+                $scope.output[2] = !$scope.output[2];
+            }
+        }
+        $scope.outputStartIndex_ASCII = $scope.constants._ASCII.value;
+        $scope.outputStopIndex_ASCII = $scope.constants._ASCIILENGTH.value; 
+        $scope.outputStartIndex_DIGIT = $scope.constants._DIGIT0.value;
+        $scope.outputStopIndex_DIGIT = $scope.constants._DIGITLENGTH.value; 
+        $scope.outputStartIndex_BITMAP =  $scope.constants._BITMAP.value;
+        $scope.outputStopIndex_BITMAP =  $scope.constants._BITMAPLENGTH.value; 
     }
-
+    $scope.outputChange()
+    
+    $scope.memorySize = function (){
+        if ($scope.constants.MEMOMRYSIZE.value==256){
+            $scope.adressSize = 8;
+        } else if ($scope.constants.MEMOMRYSIZE.value==512){
+            $scope.adressSize = 9;
+        } else if ($scope.constants.MEMOMRYSIZE.value==1024){
+            $scope.adressSize = 10;
+        } else if ($scope.constants.MEMOMRYSIZE.value==2048){
+            $scope.adressSize = 11;
+        } else if ($scope.constants.MEMOMRYSIZE.value==4096){
+            $scope.adressSize = 12;
+        }
+    }
+    $scope.memorySize()
+    
     // ng-model "code" est un l'intérieur d'un ng-switch donc obligé de passer par un abojet pour l'heritage
     $scope.code = {text: "START: \n	MOVE	#0, X		; rang de la lettre\nDISPLAY:\n	MOVE	#0, Y		; rang de l'afficheur\nLOOP:\n	MOVE	TABLE+{X}+{Y}, A	; cherche la lettre\n	MOVE	A, _ASCII+{Y}	; affiche la lettre\n	INC	Y		; afficheur suivant\n	COMP	#4, Y		; 4ème afficheur ?\n	JUMP,LO	LOOP		; non -> LOOP\n				; oui ->\n	MOVE	#3, A		; durée à attendre\n	\n	INC	X		; lettre suivante\n	COMP	#12-4, X		; dernière lettre ?\n	JUMP,LS	DISPLAY		; non -> DISPLAY\n	JUMP	START		; oui -> START\n\n	TABLE	#12		; table de 12 octets\nTABLE:\n	BYTE	#\"_\"	; espace\n	BYTE	#\"_\"	; espace\n	BYTE	#\"_\"	; espace\n	BYTE	#\"H\"	; lettre H\n	BYTE	#\"E\"	; lettre E\n	BYTE	#\"L\"	; lettre L\n	BYTE	#\"L\"	; lettre L\n	BYTE	#\"O\"	; lettre O\n	BYTE	#\"_\"	; espace\n	BYTE	#\"_\"	; espace\n	BYTE	#\"_\"	; espace\n	BYTE	#\"_\"	; espace\n"};
 
@@ -3246,8 +3290,12 @@ var app = angular.module('ASMSimulator', []);
     };
 
     //NK
-    $scope.changeMemory = function (byteIndex, bitIndex, bitValue) {
-        var ad = byteIndex+$scope.outputStartIndex
+    $scope.changeMemory = function (byteIndex, bitIndex, bitValue, output) {
+        if (output==1){
+            var ad = byteIndex+$scope.outputStartIndex_DIGIT
+        } else if (output==2){
+            var ad = byteIndex+$scope.outputStartIndex_BITMAP
+        }
         var valChange = 2**(7-bitIndex)
         if (bitValue==0){
             memory.store(ad,memory.data[ad]+valChange)
@@ -3264,8 +3312,12 @@ var app = angular.module('ASMSimulator', []);
     };
 
     $scope.getMemoryCellCss = function (index) {
-        if (index >= $scope.outputStartIndex && index <= $scope.outputStartIndex + $scope.outputStopIndex - 1) { //NK 29/06
-            return 'output-bg';
+        if (index >= $scope.outputStartIndex_ASCII && index <= $scope.outputStartIndex_ASCII + $scope.outputStopIndex_ASCII - 1) { //NK 29/06
+            return 'output-bg1';
+        } else if (index >= $scope.outputStartIndex_DIGIT && index <= $scope.outputStartIndex_DIGIT + $scope.outputStopIndex_DIGIT - 1) {
+            return 'output-bg2';
+        } else if (index >= $scope.outputStartIndex_BITMAP && index <= $scope.outputStartIndex_BITMAP + $scope.outputStopIndex_BITMAP - 1) {
+            return 'output-bg3';
         } else if ($scope.isInstruction(index)) {
             return 'instr-bg';
         } else if (index > cpu.sp && index <= cpu.maxSP) {
@@ -3308,18 +3360,20 @@ var app = angular.module('ASMSimulator', []);
         }
     };
     $scope.getOutputCss = function () {
-        if ($scope.output == 'ASCII'){
-            $document[0].getElementById("btn-output-img").className = 'btn btn-default'
-            $document[0].getElementById("btn-output-digit").className = 'btn btn-default'
+        if ($scope.output[0]){
             $document[0].getElementById("btn-output-ascii").className = 'btn btn-default btn-output-on'           
-        } else if ($scope.output == 'DIGIT'){
-            $document[0].getElementById("btn-output-img").className = 'btn btn-default'
-            $document[0].getElementById("btn-output-ascii").className = 'btn btn-default'
+        } else {
+            $document[0].getElementById("btn-output-ascii").className = 'btn btn-default'    
+        }
+        if ($scope.output[1]){
             $document[0].getElementById("btn-output-digit").className = 'btn btn-default btn-output-on'
-        } else if ($scope.output == 'IMG'){
-            $document[0].getElementById("btn-output-ascii").className = 'btn btn-default'
+        } else {
             $document[0].getElementById("btn-output-digit").className = 'btn btn-default'
+        }
+        if ($scope.output[2]){
             $document[0].getElementById("btn-output-img").className = 'btn btn-default btn-output-on'
+        } else{
+            $document[0].getElementById("btn-output-img").className = 'btn btn-default'
         }
     }
     $scope.getCodeCss = function (e) {
@@ -3386,7 +3440,6 @@ var app = angular.module('ASMSimulator', []);
         anchor.download='Assembleur.txt';
         anchor.click();        
     };
-
 
 }]);
 ;app.filter('flag', function() {

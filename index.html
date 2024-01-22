@@ -4,26 +4,24 @@
     <title>Dauphin web</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
-    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"> -->
-    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" > -->
     <link rel="stylesheet" href="style.css">
     <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
     <link rel="icon" type="image/png" href="favicon-32x32.png" sizes="32x32" />
     <link rel="icon" type="image/png" href="favicon-16x16.png" sizes="16x16" />
-    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"> -->
-
 </head>
 <body ng-controller="Ctrl">
     <nav class="navbar navbar-inverse navbar-header" role="navigation" style="background-color:#428BCA;border:0px;border-radius:0px;">
         <div class="container">
             <div class="navbar-header">
                 <span style="color:#FFFFFF">Horloge: </span>
-                <select ng-model="speed" ng-options="item.speed as item.desc for item in speeds"></select>
-                <div class="btn-group">
+                <select style="height:34px; background-color: #fff; border-color:#ccc;" ng-model="speed" ng-options="item.speed as item.desc for item in speeds"></select>
+                <div class="btn-group" ng-hide="isRunning">
                     <button type="button" class="btn btn-success navbar-btn" ng-click="run()" ng-hide="isRunning"><span class="glyphicon glyphicon-play"></span> Run</button>
+                    <button type="button" class="btn btn-default navbar-btn" ng-click="executeStep()" ng-hide="isRunning"><span class="glyphicon glyphicon-forward"></span> Step</button>
+                </div>
+                <div class="btn-group" ng-show="isRunning">
                     <button type="button" class="btn btn-default navbar-btn" ng-click="stop()" ng-show="isRunning"><span class="glyphicon glyphicon-pause"></span> Pause</button>
                     <button type="button" class="btn btn-default navbar-btn" ng-click="stop(); reset(); assemble()" ng-show="isRunning"><span class="glyphicon glyphicon-stop"></span> Stop</button>
-                    <button type="button" class="btn btn-default navbar-btn" ng-click="executeStep()" ng-hide="isRunning"><span class="glyphicon glyphicon-forward"></span> Step</button>
                 </div>
                 <button id="btn-turbo" type="button" class="btn btn-default navbar-btn" style="margin-left: 20px;" ng-click="turbo()" value=0>Turbo</button>
                 <button type="button" class="btn btn-default navbar-btn" ng-click="reset()">Reset</button>
@@ -34,6 +32,8 @@
                 <div class="btn-group">
                     <input type="file" id="openFile" style="visibility:hidden; width:1em;"  onchange="angular.element(this).scope().readFile(this.files)" accept="'.txt"></button>
                 </div>
+                <span style="color:#FFFFFF; margin-left: 60px; ">Architecture: </span>
+                <select id="archi" style="height:34px; background-color: #fff; border-color:#ccc;" ng-model="archi" ng-options="item.archi as item.desc for item in archis" ng-change="constants.set(archi); memory.reset(); memorySize(); outputChange()"></select>
             </div>
             <div class="navbar-header navbar-right">
                 <!-- <img source="favicon-32x32.png" style="height:100%"> -->
@@ -46,80 +46,8 @@
         <div class="alert alert-danger" ng-hide="error === ''">{{ error }}</div>
         <div class="row">
             <div class="col-lg-4 col-md-6 turbo" style="min-width:33em; max-width:40em">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h4 class="panel-title">BUS
-                            <div class="btn-group"  style="margin-left: 20px;">
-                                <button class="btn btn-default" type="button" ng-click="bus.read()" ng-disabled="isRunning"> Read </button>
-                                <button class="btn btn-default" type="button" ng-click="bus.write()" ng-disabled="isRunning"> Write </button>
-                            </div>
-                        </h4>
-                    </div>
-                    <div class="panel-body">
-                        <!-- <div class="source-code bus">   -->
-                            <table class="table table-condensed table-striped" style="width:100%">
-                                <thead>
-                                    <tr>
-                                        <th style="width:10rem; text-align:center">Adresse:</th>
-                                        <td style="width:6rem; text-align:center;border:1px solid #ccc;" id="busAddress" ng-model="bus" >{{bus.address | number:displayHex}}</td>
-                                        <td style="min-width:25rem; display:inline-block; width:100%;border:1px solid #ccc;">
-                                            <div id="busAddressBit" style="display:grid; grid-template-columns: repeat({{adressSize}}, minmax(auto,2rem)); float:right;">
-                                                <div  ng-repeat="a in getBinArray(bus.address, adressSize) track by $index" >
-                                                    <button ng-disabled="isRunning" ng-click="bus.change('address',$index+12-adressSize,a)" ng-class="getBusInnerCellCss(a)">{{ a }}</button>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </thead>
-                                <!-- <tbody>
-                                    <tr style="text-align:center;" class="source-code">
-                                        <td id="busAddress" ng-model="bus" >{{bus.address | number:displayHex}}</td>
-                                        <td style="min-width:25rem;" style="display:inline-block; width:100%">
-                                            <div id="busAddressBit" style="display:grid; grid-template-columns: repeat(12, minmax(auto,2rem)); float:right;">
-                                                <div ng-repeat="a in getBinArray(bus.address, 12) track by $index" >
-                                                    <button ng-disabled="isRunning" ng-click="bus.change('address',$index,a)" ng-class="getBusInnerCellCss(a)">{{ a }}</button>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody> -->
-                            </table>
-                            <!-- </div> -->
-                            <!-- <div class="source-code bus"> -->
-                                <table class="table table-condensed table-striped" style="width:100%; margin-bottom: 0px;">
-                                    <thead>
-                                        <tr>
-                                            <th style="width:10rem; text-align:center">Donnée:</th>
-                                            <td style="width:6rem; text-align:center; border:1px solid #ccc;" id="busData" ng-model="bus" >{{bus.data | number:displayHex}}</td>
-                                            <td style="min-width:25rem; text-align: right;border:1px solid #ccc;display:inline-block; width:100%;">
-                                                <div style="display:grid; grid-template-columns: repeat(8, minmax(auto,2rem)); align-content: end;float:right;">
-                                                    <div ng-repeat="a in getBinArray(bus.data, 8) track by $index">
-                                                        <button ng-disabled="isRunning" ng-click="bus.change('data',$index,a)" ng-class="getBusInnerCellCss(a)">{{ a }} </button>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <!-- <th style="width:25rem;"> </th> -->
-                                            <!-- <th></th> -->
-                                        </tr>
-                                    </thead>
-                                    <!-- <tbody>
-                                        <tr style="text-align:center;" class="source-code">
-                                            <td id="busData" ng-model="bus" >{{bus.data | number:displayHex}}</td>
-                                            <td style="min-width:25rem; text-align: right;"  style="display:inline-block; width:100%">
-                                                <div style="display:grid; grid-template-columns: repeat(8, minmax(auto,2rem)); align-content: end;float:right;">
-                                                    <div ng-repeat="a in getBinArray(bus.data, 8) track by $index">
-                                                        <button ng-disabled="isRunning" ng-click="bus.change('data',$index,a)" ng-class="getBusInnerCellCss(a)">{{ a }} </button>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </tbody> -->
-                                </table>
-                            
-                    </div>
-                </div>
-                
-                <div class="panel panel-default">
+                                
+                <div class="panel panel-default" id="Code_panel">
                     <div class="panel-heading" style="display:inline-block; width:100%">
                         <h4 class="panel-title">Code 
                             <small>
@@ -193,13 +121,13 @@
                                 <table class="table table-condensed table-striped" style="width:100%;margin-bottom: 25px;">
                                     <thead>
                                         <tr>
-                                            <th style="width:5em; text-align:center">Registres</th>
-                                            <th style="width:4em; text-align:center">A</th>
-                                            <th style="width:4em; text-align:center">B</th>
-                                            <th style="width:4em; text-align:center">X</th>
-                                            <th style="width:4em; text-align:center">Y</th>
-                                            <th style="width:4em; text-align:center">PC</th>
-                                            <th style="width:4em; text-align:center">SP</th>
+                                            <th style="width:5em; text-align:center;border:1px solid #ccc;">Registres</th>
+                                            <th style="width:4em; text-align:center;border:1px solid #ccc;">A</th>
+                                            <th style="width:4em; text-align:center;border:1px solid #ccc;">B</th>
+                                            <th style="width:4em; text-align:center;border:1px solid #ccc;">X</th>
+                                            <th style="width:4em; text-align:center;border:1px solid #ccc;">Y</th>
+                                            <th style="width:4em; text-align:center;border:1px solid #ccc;">PC</th>
+                                            <th style="width:4em; text-align:center;border:1px solid #ccc;">SP</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -214,14 +142,14 @@
                                         </tr>
                                        </tbody>
                                 </table>
-                                <table class="table table-condensed table-striped" style="width:100%;">
+                                <table class="table table-condensed table-striped" style="width:100%;margin-bottom: 0px;">
                                     <thead>
                                         <tr>
-                                            <th style="width:5em; text-align:center">Fanions</th>
-                                            <th style="width:5em; text-align:center">N</th>
-                                            <th style="width:5em; text-align:center">Z</th>
-                                            <th style="width:5em; text-align:center">C</th>
-                                            <th style="width:5em; text-align:center">F</th>
+                                            <th style="width:5em; text-align:center;border:1px solid #ccc;">Fanions</th>
+                                            <th style="width:5em; text-align:center;border:1px solid #ccc;">N</th>
+                                            <th style="width:5em; text-align:center;border:1px solid #ccc;">Z</th>
+                                            <th style="width:5em; text-align:center;border:1px solid #ccc;">C</th>
+                                            <th style="width:5em; text-align:center;border:1px solid #ccc;">F</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -232,24 +160,52 @@
                                             <td><small>{{ cpu.carry | flag }}</small></td>
                                             <td><small>{{ cpu.fault | flag }}</small></td>
                                         </tr>
-                                       </tbody>
+                                    </tbody>
                                 </table>
-                                <table class="table table-condensed table-striped" style="width:100%; margin-bottom: 3px;">
-                                    <thead>
-                                        <tr>
-                                            <th style="width:5em; text-align:center">Pile</th>
-                                            <td style="border:1px solid #ccc; display:inline-block; width:100%; min-height:2.4em; text-align:right">
-                                                <div class="memory-block" 
-                                                ng-repeat="m in memory.data | startFrom: cpu.sp+1 | stopTo: pileStop-cpu.sp track by $index" 
-                                                ng-class="getMemoryCellCss($index+cpu.sp+1)">
-                                                    <!-- {{$index}} {{pileStop}} -->
-                                                    <div ng-class="getMemoryInnerCellCss($index+cpu.sp+1)" title="@{{$index+ cpu.sp+1 | number:displayHex}}">
-                                                        <small>{{ m | number:displayHex }}</small>
+                            </div>
+                        </div>
+                        <div class="panel panel-default" id="BUS_panel">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">BUS
+                                    <div class="btn-group"  style="margin-left: 20px;">
+                                        <button class="btn btn-default" type="button" ng-click="bus.read()" ng-disabled="isRunning"> Read </button>
+                                        <button class="btn btn-default" type="button" ng-click="bus.write()" ng-disabled="isRunning"> Write </button>
+                                    </div>
+                                </h4>
+                            </div>
+                            <div class="panel-body">
+                                <!-- <div class="source-code bus">   -->
+                                    <table class="table table-condensed table-striped" style="width:100%">
+                                        <thead>
+                                            <tr>
+                                                <th style="width:10rem; text-align:center; border:1px solid #ccc;">Adresse:</th>
+                                                <td style="width:7rem; text-align:center;border:1px solid #ccc;" id="busAddress" ng-model="bus" >{{bus.address | number:displayHex}}</td>
+                                                <td style="min-width:25rem; display:inline-block; width:100%;border:1px solid #ccc;">
+                                                    <div id="busAddressBit" style="display:grid; grid-template-columns: repeat({{adressSize}}, minmax(auto,2rem)); float:right;">
+                                                        <div  ng-repeat="a in getBinArray(bus.address, adressSize) track by $index">
+                                                            <button ng-disabled="isRunning" ng-click="bus.change('address',$index+12-adressSize,a)" ng-class="getBusInnerCellCss(a)">{{ a }}</button>
+                                                        </div>
                                                     </div>
-                                            </td>
-                                        </tr>
-                                    </thead>
-                                </table>
+                                                </td>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                    <table class="table table-condensed table-striped" style="width:100%; margin-bottom: 0px;">
+                                        <thead>
+                                            <tr>
+                                                <th style="width:10rem; text-align:center; border:1px solid #ccc;">Donnée:</th>
+                                                <td style="width:7rem; text-align:center; border:1px solid #ccc;" id="busData" ng-model="bus" >{{bus.data | number:displayHex}}</td>
+                                                <td style="min-width:25rem; text-align: right;border:1px solid #ccc;display:inline-block; width:100%;">
+                                                    <div style="display:grid; grid-template-columns: repeat(8, minmax(auto,2rem)); align-content: end;float:right;">
+                                                        <div ng-repeat="a in getBinArray(bus.data, 8) track by $index">
+                                                            <button ng-disabled="isRunning" ng-click="bus.change('data',$index,a)" ng-class="getBusInnerCellCss(a)">{{ a }} </button>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                    
                             </div>
                         </div>
                         <div class="panel panel-default">    <!-- Memory -->
@@ -339,48 +295,58 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="panel panel-default">
+                        <div class="panel panel-default" id="Sorties_panel">
                             <div class="panel-heading" style="display:inline-block; width:100%">
                                 
                                 <h4 class="panel-title">Sorties 
                                     <small>
                                         <div class="btn-group" style="float:right">
-                                            <button type="button" id="btn-output-ascii"  ng-model="output" ng-click="output = 'ASCII'; outputChange('ASCII')"   ng-class="getOutputCss()">ASCII</button>
-                                            <button type="button" id="btn-output-digit"  ng-model="output" ng-click="output = 'DIGIT'; outputChange('DIGIT')"   ng-class="getOutputCss()">Digital</button>
-                                            <button type="button" id="btn-output-img"    ng-model="output" ng-click="output = 'IMG'; outputChange('IMG')"       ng-class="getOutputCss()">Bitmap</button>
+                                            <button type="button" id="btn-output-ascii"  ng-model="output" ng-click="outputChange('ASCII')"   ng-class="getOutputCss()">ASCII</button>
+                                            <button type="button" id="btn-output-digit"  ng-model="output" ng-click="outputChange('DIGIT')"   ng-class="getOutputCss()">Digital</button>
+                                            <button type="button" id="btn-output-img"    ng-model="output" ng-click="outputChange('IMG')"     ng-class="getOutputCss()">Bitmap</button>
                                         </div>
                                     </small>
                                 </h4>
                             </div>
-                            <div class="panel-body source-code" ng-switch="output">
-                                <div style="float:left; font-size:large" class="output output-ASCII"  ng-switch-when="ASCII"
-                                    ng-repeat="m in memory.data | startFrom: outputStartIndex | stopTo: outputStopIndex track by $index" 
-                                    title="@{{$index+outputStartIndex | number:displayHex}}">
-                                    <span>{{ getChar(m) }}</span>
+                            <div class="panel-body source-code" style="padding:5px">
+                                <h5 ng-hide="!output[0]">ASCII</h5>
+                                <div class="panel-body" style="border:1px solid #ddd; padding:5px; margin-bottom:5px;" ng-hide="!output[0]">
+                                    <div style="float:left; font-size:large" class="output output-ASCII" 
+                                        ng-repeat="m in memory.data | startFrom: outputStartIndex_ASCII | stopTo: outputStopIndex_ASCII track by $index" 
+                                        title="@{{$index+outputStartIndex_ASCII | number:displayHex}}">
+                                        <span>{{ getChar(m) }}</span>
+                                    </div>
                                 </div>
                                 <!-- NK 12/07 segmented display -->
-                                <div style="float:left;" class="output output-Digit" ng-switch-when="DIGIT"
-                                    ng-repeat="m in memory.data | startFrom: outputStartIndex | stopTo: outputStopIndex track by $index" >
-                                    <div class="display" x="{{bit = getBinArray(m)}}" y="{{byteIndex=$index}}">
-                                        <div class="segment A" ng-class="getOutputDigitInnerCellCss(bit[2])" ng-click="changeMemory(byteIndex,2,bit[2])" title="b{{5}} @{{byteIndex+outputStartIndex | number:displayHex}}"></div>
-                                        <div class="segment B" ng-class="getOutputDigitInnerCellCss(bit[7])" ng-click="changeMemory(byteIndex,7,bit[7])" title="b{{0}} @{{byteIndex+outputStartIndex | number:displayHex}}"></div>
-                                        <div class="segment C" ng-class="getOutputDigitInnerCellCss(bit[6])" ng-click="changeMemory(byteIndex,6,bit[6])" title="b{{1}} @{{byteIndex+outputStartIndex | number:displayHex}}"></div>
-                                        <div class="segment D" ng-class="getOutputDigitInnerCellCss(bit[5])" ng-click="changeMemory(byteIndex,5,bit[5])" title="b{{2}} @{{byteIndex+outputStartIndex | number:displayHex}}"></div>
-                                        <div class="segment E" ng-class="getOutputDigitInnerCellCss(bit[4])" ng-click="changeMemory(byteIndex,4,bit[4])" title="b{{3}} @{{byteIndex+outputStartIndex | number:displayHex}}"></div>
-                                        <div class="segment F" ng-class="getOutputDigitInnerCellCss(bit[3])" ng-click="changeMemory(byteIndex,3,bit[3])" title="b{{4}} @{{byteIndex+outputStartIndex | number:displayHex}}"></div>
-                                        <div class="segment G" ng-class="getOutputDigitInnerCellCss(bit[1])" ng-click="changeMemory(byteIndex,1,bit[1])" title="b{{6}} @{{byteIndex+outputStartIndex | number:displayHex}}"></div>
-                                        <div class="segment H" ng-class="getOutputDigitInnerCellCss(bit[0])" ng-click="changeMemory(byteIndex,0,bit[0])" title="b{{7}} @{{byteIndex+outputStartIndex | number:displayHex}}"></div>
+                                <h5 ng-hide="!output[1]">Digital</h5>
+                                <div class="panel-body" style="border:1px solid #ddd; padding:5px;; margin-bottom:5px;" ng-hide="!output[1]">
+                                    
+                                    <div style="float:left;" class="output output-Digit" 
+                                        ng-repeat="m in memory.data | startFrom: outputStartIndex_DIGIT | stopTo: outputStopIndex_DIGIT track by $index" >
+                                        <div class="display" x="{{bit = getBinArray(m)}}" y="{{byteIndex=$index}}">
+                                            <div class="segment A" ng-class="getOutputDigitInnerCellCss(bit[2])" ng-click="changeMemory(byteIndex,2,bit[2],1)" title="b{{5}} @{{byteIndex+outputStartIndex_DIGIT | number:displayHex}}"></div>
+                                            <div class="segment B" ng-class="getOutputDigitInnerCellCss(bit[7])" ng-click="changeMemory(byteIndex,7,bit[7],1)" title="b{{0}} @{{byteIndex+outputStartIndex_DIGIT | number:displayHex}}"></div>
+                                            <div class="segment C" ng-class="getOutputDigitInnerCellCss(bit[6])" ng-click="changeMemory(byteIndex,6,bit[6],1)" title="b{{1}} @{{byteIndex+outputStartIndex_DIGIT | number:displayHex}}"></div>
+                                            <div class="segment D" ng-class="getOutputDigitInnerCellCss(bit[5])" ng-click="changeMemory(byteIndex,5,bit[5],1)" title="b{{2}} @{{byteIndex+outputStartIndex_DIGIT | number:displayHex}}"></div>
+                                            <div class="segment E" ng-class="getOutputDigitInnerCellCss(bit[4])" ng-click="changeMemory(byteIndex,4,bit[4],1)" title="b{{3}} @{{byteIndex+outputStartIndex_DIGIT | number:displayHex}}"></div>
+                                            <div class="segment F" ng-class="getOutputDigitInnerCellCss(bit[3])" ng-click="changeMemory(byteIndex,3,bit[3],1)" title="b{{4}} @{{byteIndex+outputStartIndex_DIGIT | number:displayHex}}"></div>
+                                            <div class="segment G" ng-class="getOutputDigitInnerCellCss(bit[1])" ng-click="changeMemory(byteIndex,1,bit[1],1)" title="b{{6}} @{{byteIndex+outputStartIndex_DIGIT | number:displayHex}}"></div>
+                                            <div class="segment H" ng-class="getOutputDigitInnerCellCss(bit[0])" ng-click="changeMemory(byteIndex,0,bit[0],1)" title="b{{7}} @{{byteIndex+outputStartIndex_DIGIT | number:displayHex}}"></div>
+                                        </div>
                                     </div>
                                 </div>
                                 <!-- NK 08/07 byte -> bit -->
-                                <div class="outputImg_grid" ng-switch-when="IMG">
-                                    <div ng-repeat="m in memory.data | startFrom: outputStartIndex | stopTo: outputStopIndex track by $index">
-                                        <div x="{{bit = getBinArray(m)}}" y="{{byteIndex=$index}}"> 
-                                            <div style="float:left;" ng-repeat="b in bit track by $index" class="outputImg2"> 
-                                                <button ng-class="getOutputImgInnerCellCss(b)" ng-click="changeMemory(byteIndex,$index,b)" 
-                                                    alt="{{byteIndex}}" title="b{{7-$index}} @{{byteIndex+outputStartIndex | number:displayHex}}">
-                                                    <a href="#"></a>
-                                                </button>
+                                <h5 ng-hide="!output[2]">Bitmap</h5>
+                                <div class="panel-body" style="border:1px solid #ddd; padding:5px;" ng-hide="!output[2]">
+                                    <div class="outputImg_grid">
+                                        <div ng-repeat="m in memory.data | startFrom: outputStartIndex_BITMAP | stopTo: outputStopIndex_BITMAP track by $index">
+                                            <div x="{{bit = getBinArray(m)}}" y="{{byteIndex=$index}}"> 
+                                                <div style="float:left;" ng-repeat="b in bit track by $index" class="outputImg2"> 
+                                                    <button ng-class="getOutputImgInnerCellCss(b)" ng-click="changeMemory(byteIndex,$index,b,2)" 
+                                                        alt="{{byteIndex}}" title="b{{7-$index}} @{{byteIndex+outputStartIndex_BITMAP | number:displayHex}}">
+                                                        <a href="#"></a>
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -396,7 +362,6 @@
         <hr style="margin-top:10px;margin-bottom:10px;"/>
         <p><small>by Nicolas Kunz (2023) | Based on <a href="https://www.epsitec.ch/dauphin/" target="_blank">Simulateur Dauphin (EPSITEC)</a> & <a href="https://www.mschweighauser.com/make-your-own-assembler-simulator-in-javascript-part1/" target="_blank">Marco Schweighauser's work</a></small></p>
     </div>
-    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script> -->
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.10/angular.min.js"></script>
     <script src="asmsimulator.js"></script>
 </body>

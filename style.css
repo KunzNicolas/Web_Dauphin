@@ -77,6 +77,15 @@
 .output, .output-bg {
     background-color: #DFDFDF;
 }
+.output-bg1 {
+    background-color: rgb(230, 230, 230)
+}
+.output-bg2 {
+    background-color: rgb(230, 220, 220);
+}
+ .output-bg3 {
+    background-color: rgb(220, 230, 220);
+}
 
 .output {
     min-width: 1em; /* il faut specifier un largeur min sinon le "brique" ne s'affiche pas quand la mémoire est vide*/
@@ -99,10 +108,14 @@
 .navbar-btn{
     min-width: 9rem;
 }
+/* select {
+    border-radius: 4px;
+} */
 
 .btn-bus{
     background-color: #DFDFDF;
     border-width: 1px;
+    border-radius: 4px;
     width:100%;
 }
 .btn-bus-off{
