@@ -32,7 +32,7 @@
                 <div class="btn-group">
                     <input type="file" id="openFile" style="visibility:hidden; width:1em;"  onchange="angular.element(this).scope().readFile(this.files)" accept="'.txt"></button>
                 </div>
-                <span style="color:#FFFFFF; margin-left: 60px; ">Architecture: </span>
+                <span style="color:#FFFFFF; margin-left: 60px; ">Mémoire: </span>
                 <select id="archi" style="height:34px; background-color: #fff; border-color:#ccc;" ng-model="archi" ng-options="item.archi as item.desc for item in archis" ng-change="constants.set(archi); memory.reset(); memorySize(); outputChange()"></select>
             </div>
             <div class="navbar-header navbar-right">

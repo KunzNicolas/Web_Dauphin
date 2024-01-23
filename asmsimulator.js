@@ -3064,9 +3064,9 @@ var app = angular.module('ASMSimulator', []);
                     //  {speed: 8192, desc: "8192 HZ"},
                      {speed: 1048576, desc: "1 MHZ"}];
     $scope.speed = 16;
-    $scope.archis = [{archi: 8, desc: "8 bits"},
-                    {archi: 9, desc: "9 bits"},
-                    {archi: 12, desc: "12 bits"}];
+    $scope.archis = [{archi: 8, desc: "256 B"},
+                    {archi: 9, desc: "512 B"},
+                    {archi: 12, desc: "4096 B"}];
     $scope.archi = 8;
     constants.set($scope.archi);
     $scope.constants = constants;
