@@ -38,7 +38,7 @@
             <div class="navbar-header navbar-right">
                 <!-- <img source="favicon-32x32.png" style="height:100%"> -->
                 <a class="navbar-brand" style="color:#FFFFFF">Dauphin Web</a>
-                <small><a class="navbar-brand" href="./instruction-set.html" target="_blank" style="color: #ffffff">(Aide)</a></small>
+                <small><a class="navbar-brand" href="./help/Aide_DauphinWeb.pdf" target="_blank" style="color: #ffffff">(Aide)</a></small>
             </div>
         </div>
     </nav>
@@ -310,7 +310,7 @@
                             </div>
                             <div class="panel-body source-code" style="padding:5px">
                                 <h5 ng-hide="!output[0]">ASCII</h5>
-                                <div class="panel-body" style="border:1px solid #ddd; padding:5px; margin-bottom:5px;" ng-hide="!output[0]">
+                                <div class="panel-body" style="border:2px solid #ddd; padding:5px; margin-bottom:5px;" ng-hide="!output[0]">
                                     <div style="float:left; font-size:large" class="output output-ASCII" 
                                         ng-repeat="m in memory.data | startFrom: outputStartIndex_ASCII | stopTo: outputStopIndex_ASCII track by $index" 
                                         title="@{{$index+outputStartIndex_ASCII | number:displayHex}}">
@@ -319,7 +319,7 @@
                                 </div>
                                 <!-- NK 12/07 segmented display -->
                                 <h5 ng-hide="!output[1]">Digital</h5>
-                                <div class="panel-body" style="border:1px solid #ddd; padding:5px;; margin-bottom:5px;" ng-hide="!output[1]">
+                                <div class="panel-body" style="border:2px solid  rgb(235, 225, 225); padding:5px;; margin-bottom:5px;" ng-hide="!output[1]">
                                     
                                     <div style="float:left;" class="output output-Digit" 
                                         ng-repeat="m in memory.data | startFrom: outputStartIndex_DIGIT | stopTo: outputStopIndex_DIGIT track by $index" >
@@ -337,7 +337,7 @@
                                 </div>
                                 <!-- NK 08/07 byte -> bit -->
                                 <h5 ng-hide="!output[2]">Bitmap</h5>
-                                <div class="panel-body" style="border:1px solid #ddd; padding:5px;" ng-hide="!output[2]">
+                                <div class="panel-body" style="border:2px solid  rgb(225, 235, 225); padding:5px;" ng-hide="!output[2]">
                                     <div class="outputImg_grid">
                                         <div ng-repeat="m in memory.data | startFrom: outputStartIndex_BITMAP | stopTo: outputStopIndex_BITMAP track by $index">
                                             <div x="{{bit = getBinArray(m)}}" y="{{byteIndex=$index}}"> 
